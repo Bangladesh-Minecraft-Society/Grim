@@ -106,6 +106,10 @@ NoSlow:
   setbackvl: 5
   # 当玩家使用一个物品并被它减慢时衰减多少VL
   decay: 0.05
+  # 是否需要两个游戏刻的检测才标记
+  # 设置为true可能会减少盾牌使用时的误判，但允许CatLean绕过
+  # 设置为false（默认）可以检测绕过，但可能会误判合法盾牌使用
+  require-two-ticks: false
 
 Knockback:
   # 当玩家合法时，我们应该将总优势乘以多少

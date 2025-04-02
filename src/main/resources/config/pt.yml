@@ -104,6 +104,10 @@ NoSlow:
   setbackvl: 5
   # Decai quando o jogador usa um item e é efetivamente desacelerado.
   decay: 0.05
+  # Se é necessário detectar dois ticks de NoSlow antes de sinalizar
+  # Definir como true pode causar menos falsos positivos com escudos, mas permite o bypass CatLean
+  # Definir como false (padrão) detecta o bypass, mas pode sinalizar falsamente o uso legítimo de escudos
+  require-two-ticks: false
 
 Knockback:
   # Por quanto deve-se multiplicar a vantagem desde a última vez que falhou na verificação?

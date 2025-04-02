@@ -16,6 +16,7 @@ public class NoSlow extends Check implements PostPredictionCheck {
     // to another item that can be used.  What the fuck mojang.  Affects 1.8 (and most likely 1.7) clients.
     public boolean didSlotChangeLastTick = false;
     public boolean flaggedLastTick = false;
+    private boolean requireTwoTicks = false;
 
     public NoSlow(GrimPlayer player) {
         super(player);
@@ -34,7 +35,8 @@ public class NoSlow extends Check implements PostPredictionCheck {
             }
 
             if (bestOffset > offsetToFlag) {
-                if (flaggedLastTick) {
+                // Flag either if we don't require two ticks or if they've been flagged before
+                if (!requireTwoTicks || flaggedLastTick) {
                     flagAndAlertWithSetback();
                 }
                 flaggedLastTick = true;
@@ -53,5 +55,6 @@ public class NoSlow extends Check implements PostPredictionCheck {
     @Override
     public void onReload(ConfigManager config) {
         offsetToFlag = config.getDoubleElse(getConfigName() + ".threshold", 0.001);
+        requireTwoTicks = config.getBooleanElse(getConfigName() + ".require-two-ticks", false);
     }
 }

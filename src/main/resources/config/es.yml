@@ -105,6 +105,10 @@ NoSlow:
   setbackvl: 5
   # Decadencia cuando un jugador usa un item Y se ralentiza por el
   decay: 0.05
+  # Si se requieren dos ticks de NoSlow detectado antes de marcar
+  # Establecerlo en true puede causar menos falsos positivos con escudos pero permite el bypass CatLean
+  # Establecerlo en false (predeterminado) detecta el bypass pero podría causar falsos positivos al usar escudos
+  require-two-ticks: false
 
 Knockback:
   # Por cuanto deberíamos multiplicar la ventaja total cuando el jugador es legítimo

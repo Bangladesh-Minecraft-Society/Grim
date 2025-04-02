@@ -102,6 +102,10 @@ NoSlow:
   setbackvl: 5
   # Decay's when the player uses an item AND is slowed by it
   decay: 0.05
+  # Whether to require two ticks of detected noslow before flagging
+  # Set to true may cause less false positives with shields but allows the CatLean bypass
+  # Set to false (default) catches the bypass but might possibly false flag some shield usage
+  require-two-ticks: false
 
 Knockback:
   # How much should we multiply total advantage by when the player is legit
