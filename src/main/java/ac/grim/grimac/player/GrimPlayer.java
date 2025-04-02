@@ -229,6 +229,9 @@ public class GrimPlayer implements GrimUser {
     // This variable is for support with test servers that want to be able to disable grim
     // Grim disabler 2022 still working!
     public boolean disableGrim = false;
+    @Getter @Setter private boolean exemptElytra = false;
+    // Add a variable and timestamp to track water placement on water-logged blocks
+    private long lastWaterPlaceOnWaterloggedBlock = 0;
 
     public GrimPlayer(User user) {
         this.user = user;
@@ -655,7 +658,7 @@ public class GrimPlayer implements GrimUser {
                 || Collections.max(uncertaintyHandler.pistonZ) != 0 || uncertaintyHandler.isStepMovement
                 || isFlying || compensatedEntities.self.isDead || isInBed || lastInBed || uncertaintyHandler.lastFlyingStatusChange.hasOccurredSince(30)
                 || uncertaintyHandler.lastHardCollidingLerpingEntity.hasOccurredSince(3) || uncertaintyHandler.isOrWasNearGlitchyBlock
-                || isPowderSnowInteraction();
+                || isPowderSnowInteraction() || recentlyPlacedWaterOnWaterloggedBlock();
     }
 
     public boolean isPowderSnowInteraction() {
@@ -848,8 +851,7 @@ public class GrimPlayer implements GrimUser {
     @Getter private boolean ignoreDuplicatePacketRotation = false;
     @Getter @Setter private boolean experimentalChecks = false;
     @Getter private boolean cancelDuplicatePacket = true;
-    @Getter @Setter private boolean exemptElytra = false;
-    @Getter private boolean resetItemUsageOnAttack;
+    @Getter @Setter private boolean resetItemUsageOnAttack;
     @Getter private boolean resetItemUsageOnItemUpdate;
     @Getter private boolean resetItemUsageOnSlotChange;
 
@@ -897,6 +899,23 @@ public class GrimPlayer implements GrimUser {
     @Override
     public void setResyncHandler(ResyncHandler resyncHandler) {
         this.resyncHandler = resyncHandler;
+    }
+
+    /**
+     * Records that the player placed water on a water-logged block
+     * This should be called when a player places water on an already water-logged block
+     */
+    public void recordWaterPlaceOnWaterloggedBlock() {
+        this.lastWaterPlaceOnWaterloggedBlock = System.currentTimeMillis();
+    }
+
+    /**
+     * Checks if a player recently placed water on a water-logged block
+     * Used to prevent false positives in the Simulation check
+     * @return true if player placed water on a water-logged block within the last 500ms
+     */
+    public boolean recentlyPlacedWaterOnWaterloggedBlock() {
+        return System.currentTimeMillis() - lastWaterPlaceOnWaterloggedBlock < 500;
     }
 
 }

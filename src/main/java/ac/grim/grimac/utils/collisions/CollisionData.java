@@ -22,6 +22,8 @@ import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import com.viaversion.viaversion.api.Via;
 import io.github.retrooper.packetevents.util.viaversion.ViaVersionUtil;
+import com.github.retrooper.packetevents.util.Vector3d;
+import ac.grim.grimac.utils.math.GrimMath;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -1171,5 +1173,25 @@ public enum CollisionData {
             return this.box.copy();
 
         return new DynamicCollisionBox(player, version, dynamic, block);
+    }
+
+    // Add a handler for interaction with water-logged blocks during water placement
+    public static boolean isWaterLoggedInteraction(GrimPlayer player, Vector3d placementPos) {
+        // Check if the player is in motion (walking or jumping)
+        boolean playerInMotion = player.actualMovement.lengthSquared() > 0.001;
+
+        if (playerInMotion) {
+            // Check if the block at the position is already water-logged
+            WrappedBlockState state = player.compensatedWorld.getBlock(
+                GrimMath.floor(placementPos.x),
+                GrimMath.floor(placementPos.y),
+                GrimMath.floor(placementPos.z)
+            );
+
+            // Return true if the block is water-logged, meaning this interaction should be exempt from simulation checks
+            return Materials.isWaterlogged(player.getClientVersion(), state);
+        }
+
+        return false;
     }
 }

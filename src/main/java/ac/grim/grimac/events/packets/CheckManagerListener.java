@@ -148,6 +148,12 @@ public class CheckManagerListener extends PacketListenerAbstract {
                 if (!(boolean) existing.getInternalData().getOrDefault(StateValue.WATERLOGGED, true)) {
                     // Strangely, the client does not predict waterlogged placements
                     didPlace = true;
+
+                    // Record this event to prevent false flags in simulation check
+                    // Check if the block is already waterlogged
+                    if ((boolean) existing.getInternalData().getOrDefault(StateValue.WATERLOGGED, false)) {
+                        player.recordWaterPlaceOnWaterloggedBlock();
+                    }
                 }
             }
 
@@ -685,6 +691,12 @@ public class CheckManagerListener extends PacketListenerAbstract {
                     existing.setWaterlogged(false);
                     blockPlace.set(existing);
                     placed = true;
+
+                    // Record this event to prevent false flags in simulation check
+                    // Check if the block is already waterlogged
+                    if ((boolean) existing.getInternalData().getOrDefault(StateValue.WATERLOGGED, false)) {
+                        player.recordWaterPlaceOnWaterloggedBlock();
+                    }
                 }
             }
 

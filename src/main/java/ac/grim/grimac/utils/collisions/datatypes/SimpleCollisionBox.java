@@ -443,7 +443,7 @@ public class SimpleCollisionBox implements CollisionBox {
         double tmin = (bbox.getX() - ray.getOrigin().getX()) * invDir.getX();
         bbox = signDirX ? min() : max();
         double tmax = (bbox.getX() - ray.getOrigin().getX()) * invDir.getX();
-        
+
         // Calculate intersection parameters for Y axis
         bbox = signDirY ? max() : min();
         double tymin = (bbox.getY() - ray.getOrigin().getY()) * invDir.getY();
@@ -454,7 +454,7 @@ public class SimpleCollisionBox implements CollisionBox {
         if ((tmin > tymax) || (tymin > tmax)) {
             return null;
         }
-        
+
         // Find the largest entry and smallest exit parameters
         // Mathematical Concept: Taking intersection of parameter intervals
         if (tymin > tmin) {
@@ -474,7 +474,7 @@ public class SimpleCollisionBox implements CollisionBox {
         if ((tmin > tzmax) || (tzmin > tmax)) {
             return null;
         }
-        
+
         // Final intersection parameter calculation
         if (tzmin > tmin) {
             tmin = tzmin;
@@ -482,7 +482,7 @@ public class SimpleCollisionBox implements CollisionBox {
         if (tzmax < tmax) {
             tmax = tzmax;
         }
-        
+
         // Test if intersection is within requested distance bounds
         // Mathematical Concept: Parameter bounds checking for ray segment
         if ((tmin < maxDist) && (tmax > minDist)) {

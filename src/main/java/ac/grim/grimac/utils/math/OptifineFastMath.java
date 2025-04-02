@@ -40,7 +40,7 @@ public class OptifineFastMath {
     // Mathematical Concept: Lookup Table (LUT) for sine values
     // This is a pre-calculated table of 4096 sine values to avoid expensive trigonometric calculations
     private static final float[] SIN_TABLE_FAST = new float[4096];
-    
+
     // Mathematical Concept: Conversion constant from radians to lookup table index
     // 651.8986469044033 = 4096 / (2*PI) - converts angle in radians to table index
     private static final float radToIndex = roundToFloat(651.8986469044033d);

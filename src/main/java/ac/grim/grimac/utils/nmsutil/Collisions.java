@@ -600,23 +600,23 @@ public class Collisions {
 
     public static void addCollisionsAlongTravel(Set<Vector3i> output, Vector3d start, Vector3d end, SimpleCollisionBox boundingBox) {
         Vector3d direction = end.subtract(start);
-        
+
         // Mathematical Concept: Determine starting grid cell coordinates
         int currentX = GrimMath.floor(start.x);
         int currentY = GrimMath.floor(start.y);
         int currentZ = GrimMath.floor(start.z);
-        
+
         // Mathematical Concept: Grid traversal direction based on ray direction
         int stepX = GrimMath.sign(direction.x);
         int stepY = GrimMath.sign(direction.y);
         int stepZ = GrimMath.sign(direction.z);
-        
+
         // Mathematical Concept: Ray parameter (t) at which ray crosses first voxel boundary
         // Parametric ray equation: point = start + t * direction
         double tMaxX = stepX == 0 ? Double.MAX_VALUE : stepX / direction.x;
         double tMaxY = stepY == 0 ? Double.MAX_VALUE : stepY / direction.y;
         double tMaxZ = stepZ == 0 ? Double.MAX_VALUE : stepZ / direction.z;
-        
+
         // Mathematical Concept: Calculate initial distance to first voxel boundary
         // This is an implementation of a 3D Digital Differential Analyzer (DDA) algorithm
         double tDeltaX = tMaxX * (stepX > 0 ? 1.0 - GrimMath.frac(start.x) : GrimMath.frac(start.x));
@@ -661,7 +661,7 @@ public class Collisions {
                 double clampedX = GrimMath.clamp(collisionVec.x, currentX + 1.0E-5F, currentX + 1.0 - 1.0E-5F);
                 double clampedY = GrimMath.clamp(collisionVec.y, currentY + 1.0E-5F, currentY + 1.0 - 1.0E-5F);
                 double clampedZ = GrimMath.clamp(collisionVec.z, currentZ + 1.0E-5F, currentZ + 1.0 - 1.0E-5F);
-                
+
                 // Mathematical Concept: AABB expansion to find all potential collided voxels
                 int endX = GrimMath.floor(clampedX + boundingBox.getXSize());
                 int endY = GrimMath.floor(clampedY + boundingBox.getYSize());
