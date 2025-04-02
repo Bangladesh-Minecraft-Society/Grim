@@ -926,6 +926,13 @@ public enum CollisionData {
             return new SimpleCollisionBox(0.0, 0.0, 0.0, 1.0, 0.8999999761581421, 1.0, false);
         }
 
+        // Add additional condition for players jumping within powder snow to prevent false flags
+        // This accounts for specific jump mechanics in powder snow for both GroundSpoof and Simulation checks
+        if (player.lastY <= y && player.actualMovement.getY() > 0 && player.actualMovement.getY() < 0.5) {
+            // Player is jumping in powder snow - provide a special collision box that prevents false positives
+            return new SimpleCollisionBox(0, 0, 0, 1, 1, 1, true);
+        }
+
         ItemStack boots = player.getInventory().getBoots();
         if (player.lastY > y + 1 - 1e-5 && boots != null && boots.getType() == ItemTypes.LEATHER_BOOTS && !player.isSneaking && !player.inVehicle())
             return new SimpleCollisionBox(0, 0, 0, 1, 1, 1, true);

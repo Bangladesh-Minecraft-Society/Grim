@@ -149,21 +149,28 @@ public final class PlayerBaseTick {
         if (property.isEmpty()) return;
 
         // The client first desync's this attribute
-        property.get().getModifiers().removeIf(modifier -> modifier.getUUID().equals(CompensatedEntities.SNOW_MODIFIER_UUID) || modifier.getName().getKey().equals("powder_snow"));
+        property.get().getModifiers().removeIf(modifier ->
+            modifier.getUUID().equals(CompensatedEntities.SNOW_MODIFIER_UUID) ||
+            modifier.getName().getKey().equals("powder_snow"));
         playerSpeed.recalculate();
 
         // And then re-adds it using purely what the server has sent it
         StateType type = BlockProperties.getOnPos(player, player.mainSupportingBlockData, new Vector3d(player.x, player.y, player.z));
 
         if (!type.isAir()) {
-            int i = player.powderSnowFrozenTicks;
-            if (i > 0) {
-                int ticksToFreeze = 140;
+            int ticksToFreeze = 140;
+            int frozenTicks = player.powderSnowFrozenTicks;
+
+            if (frozenTicks > 0) {
                 // Remember, floats are not commutative, we must do it in the client's specific order
-                float percentFrozen = (float) Math.min(i, ticksToFreeze) / (float) ticksToFreeze;
+                float percentFrozen = (float) Math.min(frozenTicks, ticksToFreeze) / (float) ticksToFreeze;
                 float percentFrozenReducedToSpeed = -0.05F * percentFrozen;
 
-                property.get().getModifiers().add(new WrapperPlayServerUpdateAttributes.PropertyModifier(CompensatedEntities.SNOW_MODIFIER_UUID, percentFrozenReducedToSpeed, WrapperPlayServerUpdateAttributes.PropertyModifier.Operation.ADDITION));
+                property.get().getModifiers().add(new WrapperPlayServerUpdateAttributes.PropertyModifier(
+                    CompensatedEntities.SNOW_MODIFIER_UUID,
+                    percentFrozenReducedToSpeed,
+                    WrapperPlayServerUpdateAttributes.PropertyModifier.Operation.ADDITION
+                ));
                 playerSpeed.recalculate();
             }
         }

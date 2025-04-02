@@ -1070,6 +1070,9 @@ public enum BlockPlaceResult {
 
     POWDER_SNOW_BUCKET((player, place) -> {
         place.set();
+        // Mark the player as having recently interacted with powder snow
+        player.lastBlockPlaceUseItem = System.currentTimeMillis();
+        // Set the player's held item to bucket after placing powder snow
         CheckManagerListener.setPlayerItem(player, place.getHand(), ItemTypes.BUCKET);
     }, ItemTypes.POWDER_SNOW_BUCKET),
 

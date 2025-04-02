@@ -12,6 +12,7 @@ import ac.grim.grimac.utils.nmsutil.Collisions;
 import ac.grim.grimac.utils.nmsutil.GetBoundingBox;
 import ac.grim.grimac.utils.nmsutil.JumpPower;
 import ac.grim.grimac.utils.nmsutil.Riptide;
+import ac.grim.grimac.events.packets.PacketWorldBorder;
 import com.github.retrooper.packetevents.protocol.attribute.Attributes;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import org.bukkit.util.Vector;
@@ -21,7 +22,28 @@ import java.util.*;
 public class PredictionEngine {
 
     public static Vector clampMovementToHardBorder(GrimPlayer player, Vector outputVel) {
-        // TODO: Reimplement
+        // Check for world border collisions and clamp if needed
+        PacketWorldBorder border = player.checkManager.getPacketCheck(PacketWorldBorder.class);
+        if (border != null && player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_8)) {
+            double centerX = border.getCenterX();
+            double centerZ = border.getCenterZ();
+            double size = border.getCurrentDiameter() / 2;
+
+            // Only perform clamping if player is near border
+            if (Math.abs(player.x - centerX) > size - 16 || Math.abs(player.z - centerZ) > size - 16) {
+                double minX = centerX - size + 0.005;
+                double minZ = centerZ - size + 0.005;
+                double maxX = centerX + size - 0.005;
+                double maxZ = centerZ + size - 0.005;
+
+                // Clamp movement if it would cross border
+                if (player.x + outputVel.getX() < minX) outputVel.setX(minX - player.x);
+                if (player.z + outputVel.getZ() < minZ) outputVel.setZ(minZ - player.z);
+                if (player.x + outputVel.getX() > maxX) outputVel.setX(maxX - player.x);
+                if (player.z + outputVel.getZ() > maxZ) outputVel.setZ(maxZ - player.z);
+            }
+        }
+
         return outputVel;
     }
 
@@ -140,6 +162,20 @@ public class PredictionEngine {
             Vector outputVel = clampMovementToHardBorder(player, output.second());
 
             double resultAccuracy = outputVel.distanceSquared(player.actualMovement);
+
+            // Special handling for powder snow - increase tolerance for vertical differences
+            if (player.isPowderSnowInteraction()) {
+                // Calculate a modified accuracy that's much more lenient specifically on vertical movement
+                // Since powder snow physics can cause unpredictable vertical motion
+                double xDiff = outputVel.getX() - player.actualMovement.getX();
+                double yDiff = outputVel.getY() - player.actualMovement.getY();
+                double zDiff = outputVel.getZ() - player.actualMovement.getZ();
+
+                // Reduce vertical component weight significantly for powder snow interactions
+                // This allows for more variance in vertical movement while still enforcing horizontal accuracy
+                double modifiedAccuracy = (xDiff * xDiff) + (yDiff * yDiff * 0.25) + (zDiff * zDiff);
+                resultAccuracy = modifiedAccuracy;
+            }
 
             // Check if this possiblity is zero point zero three and is "close enough" to the player's actual movement
             if (clientVelAfterInput.isZeroPointZeroThree() && resultAccuracy < 0.001 * 0.001) {

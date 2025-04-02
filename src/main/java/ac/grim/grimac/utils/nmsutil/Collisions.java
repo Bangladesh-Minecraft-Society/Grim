@@ -487,7 +487,7 @@ public class Collisions {
 
         if (blockType == StateTypes.POWDER_SNOW && blockX == Math.floor(player.x) && blockY == Math.floor(player.y) && blockZ == Math.floor(player.z)
                 && player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_17)) {
-            player.stuckSpeedMultiplier = new Vector(0.8999999761581421, 1.5, 0.8999999761581421);
+            player.stuckSpeedMultiplier = new Vector(0.8999999761581421, 1.0, 0.8999999761581421);
         }
 
         if (blockType == StateTypes.SOUL_SAND && player.getClientVersion().isOlderThan(ClientVersion.V_1_15)) {

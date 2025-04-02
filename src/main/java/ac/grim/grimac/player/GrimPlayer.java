@@ -70,6 +70,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
+import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -652,7 +654,20 @@ public class GrimPlayer implements GrimUser {
                 || Collections.max(uncertaintyHandler.pistonX) != 0 || Collections.max(uncertaintyHandler.pistonY) != 0
                 || Collections.max(uncertaintyHandler.pistonZ) != 0 || uncertaintyHandler.isStepMovement
                 || isFlying || compensatedEntities.self.isDead || isInBed || lastInBed || uncertaintyHandler.lastFlyingStatusChange.hasOccurredSince(30)
-                || uncertaintyHandler.lastHardCollidingLerpingEntity.hasOccurredSince(3) || uncertaintyHandler.isOrWasNearGlitchyBlock;
+                || uncertaintyHandler.lastHardCollidingLerpingEntity.hasOccurredSince(3) || uncertaintyHandler.isOrWasNearGlitchyBlock
+                || isPowderSnowInteraction();
+    }
+
+    public boolean isPowderSnowInteraction() {
+        // Check current position first as it's most likely match
+        StateType currentBlockType = compensatedWorld.getBlockType(x, y, z);
+        if (currentBlockType == StateTypes.POWDER_SNOW) {
+            return true;
+        }
+
+        // Only check above/below if needed
+        return compensatedWorld.getBlockType(x, y - 0.5, z) == StateTypes.POWDER_SNOW
+                || compensatedWorld.getBlockType(x, y + 0.5, z) == StateTypes.POWDER_SNOW;
     }
 
     public void handleMountVehicle(int vehicleID) {

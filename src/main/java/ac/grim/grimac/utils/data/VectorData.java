@@ -89,9 +89,7 @@ public class VectorData {
                 '}';
     }
 
-    // TODO: This is a stupid idea that slows everything down, remove it! There are easier ways to debug grim.
-    // Would make false positives really easy to fix
-    // But seriously, we could trace the code to find the mistake
+    // Vector type enumeration for classifying movement vectors
     public enum VectorType {
         Normal,
         Swimhop,
