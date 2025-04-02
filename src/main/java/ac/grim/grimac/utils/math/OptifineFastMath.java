@@ -37,23 +37,37 @@ package ac.grim.grimac.utils.math;
 // his arrogance is impossible to patch.
 //
 public class OptifineFastMath {
+    // Mathematical Concept: Lookup Table (LUT) for sine values
+    // This is a pre-calculated table of 4096 sine values to avoid expensive trigonometric calculations
     private static final float[] SIN_TABLE_FAST = new float[4096];
+    
+    // Mathematical Concept: Conversion constant from radians to lookup table index
+    // 651.8986469044033 = 4096 / (2*PI) - converts angle in radians to table index
     private static final float radToIndex = roundToFloat(651.8986469044033d);
 
     static {
+        // Mathematical Concept: Precomputation of sine function values
+        // Calculate sine values for 4096 equally spaced points around the unit circle
         for (int j = 0; j < SIN_TABLE_FAST.length; ++j) {
             SIN_TABLE_FAST[j] = roundToFloat(StrictMath.sin((double) j * Math.PI * 2d / 4096d));
         }
     }
 
+    // Mathematical Concept: Fast sine approximation using table lookup
+    // Instead of calculating sin(x) directly, lookup precomputed value for speed
     public static float sin(float value) {
         return SIN_TABLE_FAST[(int) (value * radToIndex) & 4095];
     }
 
+    // Mathematical Concept: Fast cosine approximation using table lookup
+    // Uses identity cos(x) = sin(x + π/2) and table lookup for speed
+    // 1024 = 4096/4, representing π/2 in table indices
     public static float cos(float value) {
         return SIN_TABLE_FAST[(int) (value * radToIndex + 1024f) & 4095];
     }
 
+    // Mathematical Concept: Precision control through rounding
+    // Limits precision to reduce floating point errors while maintaining reasonable accuracy
     public static float roundToFloat(double d) {
         return (float) ((double) Math.round(d * 1.0E8d) / 1.0E8d);
     }

@@ -427,24 +427,36 @@ public class SimpleCollisionBox implements CollisionBox {
     // Copied from hawk lol
     // I would like to point out that this is magic to me and I have not attempted to understand this code
     public Vector intersectsRay(Ray ray, float minDist, float maxDist) {
+        // Calculate inverse direction for efficiency - division is costly, so we do it once per axis
+        // Mathematical Concept: Parametric ray equation optimization
         Vector invDir = new Vector(1f / ray.getDirection().getX(), 1f / ray.getDirection().getY(), 1f / ray.getDirection().getZ());
 
+        // Determine sign of direction components to select correct bounding box vertices
+        // Mathematical Concept: Sign-based optimization to reduce branches
         boolean signDirX = invDir.getX() < 0;
         boolean signDirY = invDir.getY() < 0;
         boolean signDirZ = invDir.getZ() < 0;
 
+        // Calculate intersection parameters for X axis
+        // Mathematical Concept: Parametric line equation t = (p - o) • (1/d)
         Vector bbox = signDirX ? max() : min();
         double tmin = (bbox.getX() - ray.getOrigin().getX()) * invDir.getX();
         bbox = signDirX ? min() : max();
         double tmax = (bbox.getX() - ray.getOrigin().getX()) * invDir.getX();
+        
+        // Calculate intersection parameters for Y axis
         bbox = signDirY ? max() : min();
         double tymin = (bbox.getY() - ray.getOrigin().getY()) * invDir.getY();
         bbox = signDirY ? min() : max();
         double tymax = (bbox.getY() - ray.getOrigin().getY()) * invDir.getY();
 
+        // Mathematical Concept: Interval overlap test - if intervals don't overlap, no intersection
         if ((tmin > tymax) || (tymin > tmax)) {
             return null;
         }
+        
+        // Find the largest entry and smallest exit parameters
+        // Mathematical Concept: Taking intersection of parameter intervals
         if (tymin > tmin) {
             tmin = tymin;
         }
@@ -452,20 +464,27 @@ public class SimpleCollisionBox implements CollisionBox {
             tmax = tymax;
         }
 
+        // Calculate intersection parameters for Z axis
         bbox = signDirZ ? max() : min();
         double tzmin = (bbox.getZ() - ray.getOrigin().getZ()) * invDir.getZ();
         bbox = signDirZ ? min() : max();
         double tzmax = (bbox.getZ() - ray.getOrigin().getZ()) * invDir.getZ();
 
+        // Second interval overlap test
         if ((tmin > tzmax) || (tzmin > tmax)) {
             return null;
         }
+        
+        // Final intersection parameter calculation
         if (tzmin > tmin) {
             tmin = tzmin;
         }
         if (tzmax < tmax) {
             tmax = tzmax;
         }
+        
+        // Test if intersection is within requested distance bounds
+        // Mathematical Concept: Parameter bounds checking for ray segment
         if ((tmin < maxDist) && (tmax > minDist)) {
             return ray.getPointAtDistance(tmin);
         }

@@ -600,33 +600,51 @@ public class Collisions {
 
     public static void addCollisionsAlongTravel(Set<Vector3i> output, Vector3d start, Vector3d end, SimpleCollisionBox boundingBox) {
         Vector3d direction = end.subtract(start);
+        
+        // Mathematical Concept: Determine starting grid cell coordinates
         int currentX = GrimMath.floor(start.x);
         int currentY = GrimMath.floor(start.y);
         int currentZ = GrimMath.floor(start.z);
+        
+        // Mathematical Concept: Grid traversal direction based on ray direction
         int stepX = GrimMath.sign(direction.x);
         int stepY = GrimMath.sign(direction.y);
         int stepZ = GrimMath.sign(direction.z);
+        
+        // Mathematical Concept: Ray parameter (t) at which ray crosses first voxel boundary
+        // Parametric ray equation: point = start + t * direction
         double tMaxX = stepX == 0 ? Double.MAX_VALUE : stepX / direction.x;
         double tMaxY = stepY == 0 ? Double.MAX_VALUE : stepY / direction.y;
         double tMaxZ = stepZ == 0 ? Double.MAX_VALUE : stepZ / direction.z;
+        
+        // Mathematical Concept: Calculate initial distance to first voxel boundary
+        // This is an implementation of a 3D Digital Differential Analyzer (DDA) algorithm
         double tDeltaX = tMaxX * (stepX > 0 ? 1.0 - GrimMath.frac(start.x) : GrimMath.frac(start.x));
         double tDeltaY = tMaxY * (stepY > 0 ? 1.0 - GrimMath.frac(start.y) : GrimMath.frac(start.y));
         double tDeltaZ = tMaxZ * (stepZ > 0 ? 1.0 - GrimMath.frac(start.z) : GrimMath.frac(start.z));
         int iterationCount = 0;
 
+        // Mathematical Concept: 3D DDA (Digital Differential Analyzer) algorithm for voxel traversal
+        // Efficiently walks through grid cells intersected by a ray
         while (tDeltaX <= 1.0 || tDeltaY <= 1.0 || tDeltaZ <= 1.0) {
+            // Mathematical Concept: Find minimum parameter to next voxel boundary
+            // Choose axis with smallest t value to cross next
             if (tDeltaX < tDeltaY) {
                 if (tDeltaX < tDeltaZ) {
+                    // Cross X boundary
                     currentX += stepX;
                     tDeltaX += tMaxX;
                 } else {
+                    // Cross Z boundary
                     currentZ += stepZ;
                     tDeltaZ += tMaxZ;
                 }
             } else if (tDeltaY < tDeltaZ) {
+                // Cross Y boundary
                 currentY += stepY;
                 tDeltaY += tMaxY;
             } else {
+                // Cross Z boundary
                 currentZ += stepZ;
                 tDeltaZ += tMaxZ;
             }
@@ -635,16 +653,21 @@ public class Collisions {
                 break;
             }
 
+            // Mathematical Concept: Line-box intersection test
             Optional<Vector3d> collisionPoint = clip(currentX, currentY, currentZ, currentX + 1, currentY + 1, currentZ + 1, start, end);
             if (collisionPoint.isPresent()) {
+                // Mathematical Concept: Clamping to ensure numerical stability
                 Vector3d collisionVec = collisionPoint.get();
                 double clampedX = GrimMath.clamp(collisionVec.x, currentX + 1.0E-5F, currentX + 1.0 - 1.0E-5F);
                 double clampedY = GrimMath.clamp(collisionVec.y, currentY + 1.0E-5F, currentY + 1.0 - 1.0E-5F);
                 double clampedZ = GrimMath.clamp(collisionVec.z, currentZ + 1.0E-5F, currentZ + 1.0 - 1.0E-5F);
+                
+                // Mathematical Concept: AABB expansion to find all potential collided voxels
                 int endX = GrimMath.floor(clampedX + boundingBox.getXSize());
                 int endY = GrimMath.floor(clampedY + boundingBox.getYSize());
                 int endZ = GrimMath.floor(clampedZ + boundingBox.getZSize());
 
+                // Add all voxels in the expanded area
                 for (int x = currentX; x <= endX; x++) {
                     for (int y = currentY; y <= endY; y++) {
                         for (int z = currentZ; z <= endZ; z++) {
